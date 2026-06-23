@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ lang_data.name }} — भाषा</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Inter',sans-serif;background:#F5F0E8;color:#1A1A2E}
+  nav{display:flex;justify-content:space-between;align-items:center;padding:1rem 5%;background:white;border-bottom:1px solid #EEE;position:sticky;top:0;z-index:100}
+  .logo{font-family:'Noto Sans Devanagari',sans-serif;font-size:1.4rem;font-weight:700;color:#FF6B00;text-decoration:none}
+  .logo span{color:#3D3B8E}
+  .back{color:#6B7280;text-decoration:none;font-size:0.9rem;display:flex;align-items:center;gap:0.3rem}
+  .back:hover{color:#1A1A2E}
+  
+  .main{max-width:900px;margin:0 auto;padding:2rem 5%}
+  
+  .lang-hero{border-radius:20px;padding:2rem 2.5rem;margin-bottom:2rem;color:white;position:relative;overflow:hidden}
+  .lang-hero h1{font-size:2rem;font-weight:700;margin-bottom:0.3rem}
+  .lang-hero .native{font-family:'Noto Sans Devanagari',sans-serif;font-size:1.2rem;opacity:0.85;margin-bottom:0.5rem}
+  .lang-hero p{opacity:0.8;font-size:0.9rem}
+  .lang-hero .big-flag{position:absolute;right:2rem;top:50%;transform:translateY(-50%);font-size:6rem;opacity:0.2}
+  
+  .lessons-grid{display:grid;gap:1rem}
+  .lesson-card{background:white;border-radius:14px;padding:1.5rem;border:2px solid #EEE;display:flex;align-items:center;gap:1rem;text-decoration:none;color:inherit;transition:all 0.2s}
+  .lesson-card:hover{transform:translateX(4px);box-shadow:0 4px 15px rgba(0,0,0,0.08)}
+  .lesson-card.done{border-color:#86EFAC;background:#F0FDF4}
+  .lesson-num{font-size:1.5rem;min-width:48px;text-align:center}
+  .lesson-info{flex:1}
+  .lesson-info h3{font-size:1rem;font-weight:700;margin-bottom:0.2rem}
+  .lesson-info p{font-size:0.82rem;color:#6B7280}
+  .lesson-badge{display:flex;align-items:center;gap:0.5rem}
+  .xp-badge{background:#FFF3E8;color:#FF6B00;padding:0.25rem 0.6rem;border-radius:20px;font-size:0.75rem;font-weight:700}
+  .done-badge{background:#DCFCE7;color:#16A34A;padding:0.25rem 0.6rem;border-radius:20px;font-size:0.75rem;font-weight:700}
+  .go-btn{padding:0.5rem 1.2rem;border-radius:8px;color:white;font-size:0.85rem;font-weight:600}
+  
+  .progress-section{background:white;border-radius:14px;padding:1.2rem 1.5rem;margin-bottom:1.5rem;border:1.5px solid #EEE}
+  .progress-section h3{font-size:0.9rem;font-weight:600;color:#6B7280;margin-bottom:0.6rem}
+  .prog-bar{background:#F0EDE8;border-radius:10px;height:10px;overflow:hidden}
+  .prog-fill{height:100%;border-radius:10px;transition:width 0.5s}
+  .prog-label{text-align:right;font-size:0.8rem;color:#6B7280;margin-top:0.3rem}
+</style>
+</head>
+<body>
+<nav>
+  <a href="/" class="logo">भाषा <span>Bhasha</span></a>
+  <a href="/dashboard" class="back">← Dashboard</a>
+</nav>
+
+<div class="main">
+  {% set color_map = {'marathi':'#FF6B35','english':'#4A90D9','marwadi':'#F5A623','sanskrit':'#7B68EE'} %}
+  {% set c = color_map[lang] %}
+  
+  <div class="lang-hero" style="background:linear-gradient(135deg,{{ c }} 0%,{{ c }}CC 100%)">
+    <h1>{{ lang_data.name }}</h1>
+    <div class="native">{{ lang_data.native }}</div>
+    <p>{{ lang_data.desc }}</p>
+    <span class="big-flag">{{ lang_data.flag }}</span>
+  </div>
+
+  {% set done_count = completed_ids|length %}
+  {% set total = lessons|length %}
+  <div class="progress-section">
+    <h3>TERA PROGRESS</h3>
+    <div class="prog-bar">
+      <div class="prog-fill" style="width:{{ ((done_count/total*100)|int) if total else 0 }}%;background:{{ c }}"></div>
+    </div>
+    <div class="prog-label">{{ done_count }}/{{ total }} lessons complete</div>
+  </div>
+
+  <div class="lessons-grid">
+    {% for lesson in lessons %}
+    {% set is_done = lesson.id in completed_ids %}
+    <a href="/lesson/{{ lang }}/{{ lesson.id }}" class="lesson-card {% if is_done %}done{% endif %}">
+      <div class="lesson-num">{{ lesson.icon }}</div>
+      <div class="lesson-info">
+        <h3>Lesson {{ loop.index }}: {{ lesson.title }}</h3>
+        <p>{{ lesson.words|length }} words + quiz</p>
+      </div>
+      <div class="lesson-badge">
+        {% if is_done %}
+        <span class="done-badge">✅ Done</span>
+        {% endif %}
+        <span class="xp-badge">+{{ lesson.xp }}XP</span>
+        <span class="go-btn" style="background:{{ c }}">{% if is_done %}Review{% else %}Start{% endif %} →</span>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+</div>
+</body>
+</html>

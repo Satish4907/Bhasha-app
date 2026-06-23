@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% if mode=='login' %}Login{% else %}Register{% endif %} — भाषा</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Inter',sans-serif;background:#FEFAF3;min-height:100vh;display:flex;flex-direction:column}
+  nav{display:flex;justify-content:space-between;align-items:center;padding:1.2rem 5%;border-bottom:1px solid rgba(255,107,0,0.1)}
+  .logo{font-family:'Noto Sans Devanagari',sans-serif;font-size:1.6rem;font-weight:700;color:#FF6B00;text-decoration:none}
+  .logo span{color:#3D3B8E}
+  .main{flex:1;display:flex;align-items:center;justify-content:center;padding:2rem}
+  .card{background:white;border-radius:20px;padding:2.5rem;width:100%;max-width:420px;box-shadow:0 4px 30px rgba(0,0,0,0.08);border:1.5px solid #F0EDE8}
+  .card-top{text-align:center;margin-bottom:2rem}
+  .card-icon{font-size:2.5rem;margin-bottom:0.8rem}
+  .card-top h1{font-size:1.6rem;font-weight:700;margin-bottom:0.3rem}
+  .card-top p{color:#6B7280;font-size:0.9rem}
+  .field{margin-bottom:1.2rem}
+  .field label{display:block;font-size:0.85rem;font-weight:600;color:#374151;margin-bottom:0.4rem}
+  .field input{width:100%;padding:0.75rem 1rem;border:1.5px solid #E5E7EB;border-radius:10px;font-size:0.95rem;font-family:'Inter',sans-serif;transition:border-color 0.2s;outline:none}
+  .field input:focus{border-color:#FF6B00}
+  .error{background:#FEE2E2;color:#DC2626;padding:0.75rem 1rem;border-radius:8px;font-size:0.85rem;margin-bottom:1rem;border:1px solid #FECACA}
+  .btn-submit{width:100%;padding:0.85rem;background:#FF6B00;color:white;border:none;border-radius:10px;font-size:1rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.2s;margin-top:0.5rem}
+  .btn-submit:hover{background:#E55D00;transform:translateY(-1px)}
+  .switch{text-align:center;margin-top:1.5rem;color:#6B7280;font-size:0.9rem}
+  .switch a{color:#FF6B00;font-weight:600;text-decoration:none}
+  .switch a:hover{text-decoration:underline}
+  .divider{text-align:center;color:#9CA3AF;font-size:0.8rem;margin:1.2rem 0;position:relative}
+  .divider::before{content:'';position:absolute;top:50%;left:0;right:0;height:1px;background:#E5E7EB}
+  .divider span{background:white;padding:0 0.8rem;position:relative}
+</style>
+</head>
+<body>
+<nav>
+  <a href="/" class="logo">भाषा <span>Bhasha</span></a>
+</nav>
+<div class="main">
+  <div class="card">
+    <div class="card-top">
+      <div class="card-icon">{% if mode=='login' %}🔐{% else %}🙏{% endif %}</div>
+      <h1>{% if mode=='login' %}Wapas aao!{% else %}Shuru karo!{% endif %}</h1>
+      <p>{% if mode=='login' %}Login karo aur seekhna jaari rakho{% else %}Free mein register karo — bas 30 seconds lagenge{% endif %}</p>
+    </div>
+
+    {% if error %}
+    <div class="error">⚠️ {{ error }}</div>
+    {% endif %}
+
+    <form method="POST">
+      {% if mode=='register' %}
+      <div class="field">
+        <label>Username</label>
+        <input type="text" name="username" placeholder="Tera naam (koi bhi)" required autocomplete="username">
+      </div>
+      <div class="field">
+        <label>Email</label>
+        <input type="email" name="email" placeholder="tera@email.com" required autocomplete="email">
+      </div>
+      {% else %}
+      <div class="field">
+        <label>Username</label>
+        <input type="text" name="username" placeholder="Tera username" required autocomplete="username">
+      </div>
+      {% endif %}
+      <div class="field">
+        <label>Password</label>
+        <input type="password" name="password" placeholder="{% if mode=='register' %}Koi bhi strong password{% else %}Tera password{% endif %}" required autocomplete="{% if mode=='register' %}new-password{% else %}current-password{% endif %}">
+      </div>
+      <button type="submit" class="btn-submit">
+        {% if mode=='login' %}Login karo →{% else %}Account Banao →{% endif %}
+      </button>
+    </form>
+
+    <div class="switch">
+      {% if mode=='login' %}
+        Naya user hai? <a href="/register">Register karo</a>
+      {% else %}
+        Pehle se account hai? <a href="/login">Login karo</a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+</body>
+</html>

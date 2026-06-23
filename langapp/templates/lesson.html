@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ lesson.title }} — भाषा</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Inter',sans-serif;background:#F5F0E8;color:#1A1A2E}
+  nav{display:flex;justify-content:space-between;align-items:center;padding:1rem 5%;background:white;border-bottom:1px solid #EEE;position:sticky;top:0;z-index:100}
+  .logo{font-family:'Noto Sans Devanagari',sans-serif;font-size:1.4rem;font-weight:700;color:#FF6B00;text-decoration:none}
+  .logo span{color:#3D3B8E}
+  .back{color:#6B7280;text-decoration:none;font-size:0.9rem}
+  .back:hover{color:#1A1A2E}
+  
+  .main{max-width:750px;margin:0 auto;padding:2rem 5%}
+  
+  .lesson-header{text-align:center;margin-bottom:2rem}
+  .lesson-icon{font-size:3rem;margin-bottom:0.5rem}
+  .lesson-header h1{font-size:1.8rem;font-weight:700;margin-bottom:0.2rem}
+  .lesson-header p{color:#6B7280;font-size:0.9rem}
+  
+  /* PROGRESS BAR (top) */
+  .top-progress{background:#E5E7EB;border-radius:10px;height:6px;margin-bottom:2rem;overflow:hidden}
+  .top-fill{height:100%;border-radius:10px;transition:width 0.4s}
+  
+  /* CARDS */
+  .flashcard-wrap{position:relative;height:260px;margin-bottom:2rem;perspective:1000px}
+  .flashcard{width:100%;height:100%;position:absolute;transform-style:preserve-3d;transition:transform 0.5s;cursor:pointer}
+  .flashcard.flipped{transform:rotateY(180deg)}
+  .card-face{position:absolute;width:100%;height:100%;backface-visibility:hidden;border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;box-shadow:0 4px 20px rgba(0,0,0,0.08)}
+  .card-front{background:white;border:2px solid #EEE}
+  .card-back{background:white;border:2px solid #EEE;transform:rotateY(180deg)}
+  .big-word{font-family:'Noto Sans Devanagari',sans-serif;font-size:2.8rem;font-weight:700;margin-bottom:0.4rem;text-align:center}
+  .roman{font-size:1.1rem;color:#6B7280;margin-bottom:0.4rem}
+  .tap-hint{font-size:0.75rem;color:#9CA3AF;margin-top:0.8rem}
+  .meaning{font-size:1.2rem;font-weight:600;text-align:center;margin-bottom:0.3rem}
+  .hindi-ref{font-family:'Noto Sans Devanagari',sans-serif;font-size:1.1rem;color:#6B7280}
+  .hindi-label{font-size:0.7rem;text-transform:uppercase;letter-spacing:1px;color:#9CA3AF;margin-bottom:0.2rem}
+  
+  /* NAV BTNS */
+  .nav-btns{display:flex;justify-content:center;align-items:center;gap:1rem;margin-bottom:2rem}
+  .nav-btn{padding:0.7rem 1.5rem;border-radius:10px;font-size:0.9rem;font-weight:600;cursor:pointer;border:2px solid;transition:all 0.2s;font-family:'Inter',sans-serif}
+  .nav-btn.prev{background:white;border-color:#E5E7EB;color:#374151}
+  .nav-btn.prev:hover{border-color:#9CA3AF}
+  .nav-btn.next{color:white;border-color:transparent}
+  .nav-btn.next:hover{opacity:0.85}
+  .counter{font-size:0.9rem;color:#6B7280;font-weight:600;min-width:80px;text-align:center}
+  
+  /* WORD LIST */
+  .word-list{background:white;border-radius:16px;padding:1.2rem;border:1.5px solid #EEE;margin-bottom:2rem}
+  .word-list h3{font-size:0.85rem;font-weight:600;color:#6B7280;margin-bottom:0.8rem;text-transform:uppercase;letter-spacing:0.5px}
+  .word-item{display:flex;align-items:center;justify-content:space-between;padding:0.6rem 0;border-bottom:1px solid #F5F5F5}
+  .word-item:last-child{border-bottom:none}
+  .wi-word{font-family:'Noto Sans Devanagari',sans-serif;font-size:1.05rem;font-weight:600}
+  .wi-roman{font-size:0.8rem;color:#6B7280}
+  .wi-meaning{font-size:0.85rem;color:#374151;text-align:right}
+  
+  /* QUIZ BTN */
+  .quiz-section{text-align:center}
+  .quiz-btn{display:inline-block;padding:0.9rem 2.5rem;border-radius:12px;color:white;font-size:1rem;font-weight:700;text-decoration:none;transition:all 0.2s}
+  .quiz-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,0.15)}
+  .quiz-sub{font-size:0.85rem;color:#6B7280;margin-top:0.5rem}
+</style>
+</head>
+<body>
+<nav>
+  <a href="/" class="logo">भाषा <span>Bhasha</span></a>
+  <a href="/learn/{{ lang }}" class="back">← {{ lang_data.name }}</a>
+</nav>
+
+<div class="main">
+  {% set color_map = {'marathi':'#FF6B35','english':'#4A90D9','marwadi':'#F5A623','sanskrit':'#7B68EE'} %}
+  {% set c = color_map[lang] %}
+  
+  <div class="lesson-header">
+    <div class="lesson-icon">{{ lesson.icon }}</div>
+    <h1>{{ lesson.title }}</h1>
+    <p>{{ lesson.words|length }} words — cards pe tap karo paltane ke liye</p>
+  </div>
+
+  <div class="top-progress">
+    <div class="top-fill" id="topFill" style="background:{{ c }};width:{{ (1/lesson.words|length*100)|int }}%"></div>
+  </div>
+
+  <div class="flashcard-wrap">
+    <div class="flashcard" id="card" onclick="flipCard()">
+      <div class="card-face card-front">
+        <div class="big-word" style="color:{{ c }}">{{ lesson.words[0].word }}</div>
+        <div class="roman">{{ lesson.words[0].roman }}</div>
+        <div class="tap-hint">👆 Tap karo matlab dekhne ke liye</div>
+      </div>
+      <div class="card-face card-back">
+        <div class="meaning">{{ lesson.words[0].meaning }}</div>
+        <div class="hindi-label">Hindi mein</div>
+        <div class="hindi-ref">{{ lesson.words[0].hindi }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-btns">
+    <button class="nav-btn prev" onclick="prevCard()">← Pichla</button>
+    <span class="counter" id="counter">1 / {{ lesson.words|length }}</span>
+    <button class="nav-btn next" style="background:{{ c }}" onclick="nextCard()">Agla →</button>
+  </div>
+
+  <div class="word-list">
+    <h3>Sabhi Words</h3>
+    {% for w in lesson.words %}
+    <div class="word-item">
+      <div>
+        <div class="wi-word" style="color:{{ c }}">{{ w.word }}</div>
+        <div class="wi-roman">{{ w.roman }}</div>
+      </div>
+      <div class="wi-meaning">{{ w.meaning }}</div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div class="quiz-section">
+    <a href="/quiz/{{ lang }}/{{ lesson.id }}" class="quiz-btn" style="background:{{ c }}">
+      Quiz Do → (+{{ lesson.xp }} XP)
+    </a>
+    <div class="quiz-sub">
+      {% if already_done %}✅ Tune yeh lesson pehle complete kar liya hai — phir se try karo!{% else %}Words yaad ho gaye? Quiz mein test karo!{% endif %}
+    </div>
+  </div>
+</div>
+
+<script>
+const words = {{ lesson.words | tojson }};
+let current = 0;
+let flipped = false;
+const card = document.getElementById('card');
+const counter = document.getElementById('counter');
+const fill = document.getElementById('topFill');
+const total = words.length;
+
+function update() {
+  const w = words[current];
+  card.querySelector('.big-word').textContent = w.word;
+  card.querySelector('.roman').textContent = w.roman;
+  card.querySelector('.meaning').textContent = w.meaning;
+  card.querySelector('.hindi-ref').textContent = w.hindi;
+  counter.textContent = (current+1) + ' / ' + total;
+  fill.style.width = ((current+1)/total*100) + '%';
+  if(flipped) { card.classList.remove('flipped'); flipped=false; }
+}
+
+function flipCard() {
+  flipped = !flipped;
+  card.classList.toggle('flipped', flipped);
+}
+
+function nextCard() {
+  if(current < total-1) { current++; update(); }
+}
+
+function prevCard() {
+  if(current > 0) { current--; update(); }
+}
+</script>
+</body>
+</html>

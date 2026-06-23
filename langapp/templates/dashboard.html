@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — भाषा</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{--saffron:#FF6B00;--indigo:#3D3B8E;--cream:#FEFAF3;--text:#1A1A2E;--muted:#6B7280;--white:#FFF}
+  body{font-family:'Inter',sans-serif;background:#F5F0E8;color:var(--text)}
+  
+  nav{display:flex;justify-content:space-between;align-items:center;padding:1rem 5%;background:white;border-bottom:1px solid #EEE;position:sticky;top:0;z-index:100}
+  .logo{font-family:'Noto Sans Devanagari',sans-serif;font-size:1.4rem;font-weight:700;color:var(--saffron);text-decoration:none}
+  .logo span{color:var(--indigo)}
+  .nav-right{display:flex;align-items:center;gap:1rem}
+  .nav-right a{color:var(--muted);text-decoration:none;font-size:0.9rem;font-weight:500}
+  .nav-right a:hover{color:var(--text)}
+  .nav-right .logout{color:#EF4444}
+  .user-chip{background:var(--saffron);color:white;padding:0.35rem 0.9rem;border-radius:20px;font-size:0.85rem;font-weight:600}
+
+  .main{max-width:1100px;margin:0 auto;padding:2rem 5%}
+  
+  /* GREETING */
+  .greeting{background:linear-gradient(135deg,var(--indigo) 0%,#5B59C4 100%);color:white;border-radius:20px;padding:2rem 2.5rem;margin-bottom:2rem;position:relative;overflow:hidden}
+  .greeting::after{content:'🙏';position:absolute;right:2rem;top:50%;transform:translateY(-50%);font-size:5rem;opacity:0.15}
+  .greeting h1{font-size:1.6rem;font-weight:700;margin-bottom:0.3rem}
+  .greeting p{opacity:0.8;font-size:0.95rem}
+  
+  /* STATS ROW */
+  .stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:2rem}
+  .stat-card{background:white;border-radius:14px;padding:1.3rem;text-align:center;border:1.5px solid #EEE}
+  .stat-val{font-size:2rem;font-weight:700;color:var(--saffron)}
+  .stat-label{font-size:0.8rem;color:var(--muted);margin-top:0.2rem}
+  
+  /* LANG CARDS */
+  .section-title{font-size:1.2rem;font-weight:700;margin-bottom:1rem;color:var(--text)}
+  .lang-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.2rem;margin-bottom:2rem}
+  .lang-card{background:white;border-radius:16px;padding:1.5rem;border:2px solid #EEE;transition:all 0.2s;text-decoration:none;color:inherit;display:block}
+  .lang-card:hover{transform:translateY(-3px);box-shadow:0 8px 25px rgba(0,0,0,0.1)}
+  .lang-head{display:flex;align-items:center;gap:0.8rem;margin-bottom:1rem}
+  .lang-head .icon{font-size:1.5rem}
+  .lang-head h3{font-size:1rem;font-weight:700}
+  .lang-head .native{font-family:'Noto Sans Devanagari',sans-serif;font-size:0.85rem}
+  .progress-bar{background:#F0EDE8;border-radius:10px;height:8px;overflow:hidden;margin-bottom:0.5rem}
+  .progress-fill{height:100%;border-radius:10px;transition:width 0.5s ease}
+  .progress-info{display:flex;justify-content:space-between;font-size:0.8rem;color:var(--muted)}
+  .start-btn{display:inline-block;margin-top:1rem;padding:0.5rem 1.2rem;border-radius:8px;font-size:0.85rem;font-weight:600;color:white;text-decoration:none;transition:all 0.2s}
+  .start-btn:hover{opacity:0.85}
+
+  /* RECENT */
+  .recent-card{background:white;border-radius:16px;padding:1.5rem;border:1.5px solid #EEE}
+  .quiz-row{display:flex;justify-content:space-between;align-items:center;padding:0.7rem 0;border-bottom:1px solid #F5F5F5}
+  .quiz-row:last-child{border-bottom:none}
+  .quiz-lang{font-size:0.85rem;font-weight:600}
+  .quiz-score{font-size:0.85rem;color:var(--muted)}
+  .quiz-pct{font-weight:700;font-size:0.9rem}
+  .empty-state{text-align:center;padding:2rem;color:var(--muted);font-size:0.9rem}
+
+  @media(max-width:600px){
+    .stats-row{grid-template-columns:repeat(3,1fr)}
+    .stat-val{font-size:1.5rem}
+  }
+</style>
+</head>
+<body>
+<nav>
+  <a href="/" class="logo">भाषा <span>Bhasha</span></a>
+  <div class="nav-right">
+    <a href="/profile">📊 Profile</a>
+    <a href="/logout" class="logout">Logout</a>
+    <span class="user-chip">{{ current_user.username }}</span>
+  </div>
+</nav>
+
+<div class="main">
+  <div class="greeting">
+    <h1>Namaste, {{ current_user.username }}! 🌟</h1>
+    <p>Aaj kaunsi bhasha seekhne ka mann hai?</p>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-val">🔥 {{ streak.current_streak if streak else 0 }}</div>
+      <div class="stat-label">Day Streak</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val">⭐ {{ streak.total_xp if streak else 0 }}</div>
+      <div class="stat-label">Total XP</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val">🏆 {{ streak.longest_streak if streak else 0 }}</div>
+      <div class="stat-label">Best Streak</div>
+    </div>
+  </div>
+
+  <div class="section-title">📚 Apni Bhashaein</div>
+  <div class="lang-grid">
+    {% set colors = {'marathi':'#FF6B35','english':'#4A90D9','marwadi':'#F5A623','sanskrit':'#7B68EE'} %}
+    {% for lang_key, stats in lang_stats.items() %}
+    <a href="/learn/{{ lang_key }}" class="lang-card" style="border-color:{{ colors[lang_key] }}22">
+      <div class="lang-head">
+        <span class="icon">{{ stats.flag }}</span>
+        <div>
+          <h3>{{ stats.name }}</h3>
+          <div class="native" style="color:{{ colors[lang_key] }}">{{ stats.native }}</div>
+        </div>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width:{{ stats.pct }}%;background:{{ colors[lang_key] }}"></div>
+      </div>
+      <div class="progress-info">
+        <span>{{ stats.completed }}/{{ stats.total }} lessons</span>
+        <span>{{ stats.pct }}%</span>
+      </div>
+      <span class="start-btn" style="background:{{ colors[lang_key] }}">
+        {% if stats.completed == 0 %}Shuru Karo →{% elif stats.pct == 100 %}Review karo 🎉{% else %}Jaari Rakho →{% endif %}
+      </span>
+    </a>
+    {% endfor %}
+  </div>
+
+  <div class="section-title">📝 Recent Quiz Results</div>
+  <div class="recent-card">
+    {% if recent %}
+      {% for r in recent %}
+      {% set pct = ((r.score / r.total * 100)|int) if r.total else 0 %}
+      <div class="quiz-row">
+        <span class="quiz-lang">{{ languages[r.language].name }} — Lesson {{ r.lesson_id.split('_')[-1].title() }}</span>
+        <div style="display:flex;align-items:center;gap:1rem">
+          <span class="quiz-score">{{ r.score }}/{{ r.total }}</span>
+          <span class="quiz-pct" style="color:{% if pct>=80 %}#16A34A{% elif pct>=50 %}#CA8A04{% else %}#DC2626{% endif %}">{{ pct }}%</span>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="empty-state">Abhi koi quiz nahi diya — pehla lesson shuru karo! 🚀</div>
+    {% endif %}
+  </div>
+</div>
+
+</body>
+</html>

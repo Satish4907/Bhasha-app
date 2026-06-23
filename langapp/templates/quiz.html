@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz: {{ lesson.title }} — भाषा</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Inter',sans-serif;background:#F5F0E8;color:#1A1A2E}
+  nav{display:flex;justify-content:space-between;align-items:center;padding:1rem 5%;background:white;border-bottom:1px solid #EEE;position:sticky;top:0;z-index:100}
+  .logo{font-family:'Noto Sans Devanagari',sans-serif;font-size:1.4rem;font-weight:700;color:#FF6B00;text-decoration:none}
+  .logo span{color:#3D3B8E}
+  .back{color:#6B7280;text-decoration:none;font-size:0.9rem}
+  
+  .main{max-width:600px;margin:0 auto;padding:2rem 5%}
+  
+  .quiz-header{text-align:center;margin-bottom:2rem}
+  .quiz-header h1{font-size:1.5rem;font-weight:700}
+  .quiz-header p{color:#6B7280;font-size:0.9rem;margin-top:0.3rem}
+  
+  .q-progress{background:#E5E7EB;border-radius:10px;height:6px;margin-bottom:2rem;overflow:hidden}
+  .q-fill{height:100%;border-radius:10px;transition:width 0.4s}
+  
+  .q-card{background:white;border-radius:20px;padding:2rem;box-shadow:0 4px 20px rgba(0,0,0,0.06);margin-bottom:1.5rem;border:1.5px solid #EEE}
+  .q-num{font-size:0.8rem;font-weight:600;color:#9CA3AF;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.5rem}
+  .q-text{font-family:'Noto Sans Devanagari',sans-serif;font-size:1.2rem;font-weight:600;line-height:1.4}
+  
+  .options{display:grid;gap:0.8rem;margin-top:1.5rem}
+  .option-btn{padding:0.9rem 1.2rem;border-radius:12px;border:2px solid #E5E7EB;background:white;font-size:0.95rem;font-family:'Noto Sans Devanagari',sans-serif;cursor:pointer;transition:all 0.2s;text-align:left;font-weight:500}
+  .option-btn:hover:not(:disabled){border-color:#9CA3AF;background:#F9FAFB}
+  .option-btn.correct{border-color:#16A34A;background:#F0FDF4;color:#15803D}
+  .option-btn.wrong{border-color:#DC2626;background:#FEF2F2;color:#DC2626}
+  .option-btn:disabled{cursor:default}
+  
+  .feedback{border-radius:12px;padding:1rem 1.2rem;margin-top:1rem;font-size:0.9rem;font-weight:600;display:none}
+  .feedback.correct{background:#DCFCE7;color:#15803D;border:1px solid #86EFAC}
+  .feedback.wrong{background:#FEE2E2;color:#DC2626;border:1px solid #FECACA}
+  
+  .next-btn{width:100%;padding:0.9rem;border-radius:12px;color:white;font-size:1rem;font-weight:700;cursor:pointer;border:none;font-family:'Inter',sans-serif;margin-top:1rem;display:none;transition:all 0.2s}
+  .next-btn:hover{opacity:0.85}
+  
+  /* RESULTS */
+  .results{background:white;border-radius:20px;padding:2.5rem;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,0.08);display:none}
+  .results-emoji{font-size:4rem;margin-bottom:1rem}
+  .results h2{font-size:1.8rem;font-weight:700;margin-bottom:0.5rem}
+  .results .score-big{font-size:3rem;font-weight:700;margin:1rem 0}
+  .results p{color:#6B7280;margin-bottom:1.5rem}
+  .result-btns{display:flex;gap:0.8rem;justify-content:center;flex-wrap:wrap}
+  .r-btn{padding:0.7rem 1.5rem;border-radius:10px;font-size:0.9rem;font-weight:600;text-decoration:none;transition:all 0.2s}
+  .r-btn-main{color:white}
+  .r-btn-main:hover{opacity:0.85}
+  .r-btn-sec{background:#F3F4F6;color:#374151}
+  .r-btn-sec:hover{background:#E5E7EB}
+  .xp-earned{display:inline-block;background:#FFF3E8;color:#FF6B00;padding:0.4rem 1rem;border-radius:20px;font-weight:700;margin-bottom:1rem}
+</style>
+</head>
+<body>
+<nav>
+  <a href="/" class="logo">भाषा <span>Bhasha</span></a>
+  <a href="/lesson/{{ lang }}/{{ lesson.id }}" class="back">← Lesson</a>
+</nav>
+
+<div class="main">
+  {% set color_map = {'marathi':'#FF6B35','english':'#4A90D9','marwadi':'#F5A623','sanskrit':'#7B68EE'} %}
+  {% set c = color_map[lang] %}
+  
+  <div class="quiz-header">
+    <h1>{{ lesson.icon }} Quiz: {{ lesson.title }}</h1>
+    <p>{{ lesson.quiz|length }} questions — sahi jawab do aur XP kamao!</p>
+  </div>
+
+  <div class="q-progress">
+    <div class="q-fill" id="qFill" style="background:{{ c }};width:0%"></div>
+  </div>
+
+  <div id="quizArea">
+    <div class="q-card">
+      <div class="q-num" id="qNum">Question 1 of {{ lesson.quiz|length }}</div>
+      <div class="q-text" id="qText"></div>
+      <div class="options" id="options"></div>
+      <div class="feedback" id="feedback"></div>
+      <button class="next-btn" id="nextBtn" style="background:{{ c }}">Agla Sawaal →</button>
+    </div>
+  </div>
+
+  <div class="results" id="results">
+    <div class="results-emoji" id="resultsEmoji">🎉</div>
+    <h2 id="resultsTitle"></h2>
+    <div class="score-big" id="scoreText" style="color:{{ c }}"></div>
+    <div class="xp-earned" id="xpText"></div>
+    <p id="resultsMsg"></p>
+    <div class="result-btns">
+      <a href="/learn/{{ lang }}" class="r-btn r-btn-main" style="background:{{ c }}">Aur Lessons →</a>
+      <a href="/lesson/{{ lang }}/{{ lesson.id }}" class="r-btn r-btn-sec">Lesson Review</a>
+      <a href="/dashboard" class="r-btn r-btn-sec">Dashboard</a>
+    </div>
+  </div>
+</div>
+
+<script>
+const questions = {{ lesson.quiz | tojson }};
+const totalQ = questions.length;
+let current = 0;
+let score = 0;
+let answered = false;
+
+const qNum = document.getElementById('qNum');
+const qText = document.getElementById('qText');
+const optionsDiv = document.getElementById('options');
+const feedback = document.getElementById('feedback');
+const nextBtn = document.getElementById('nextBtn');
+const qFill = document.getElementById('qFill');
+
+function showQuestion() {
+  answered = false;
+  const q = questions[current];
+  qNum.textContent = 'Question ' + (current+1) + ' of ' + totalQ;
+  qText.textContent = q.q;
+  qFill.style.width = ((current)/totalQ*100) + '%';
+  feedback.style.display = 'none';
+  nextBtn.style.display = 'none';
+  
+  optionsDiv.innerHTML = '';
+  q.options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.textContent = opt;
+    btn.onclick = () => answer(i, q.ans, btn);
+    optionsDiv.appendChild(btn);
+  });
+}
+
+function answer(selected, correct, btn) {
+  if(answered) return;
+  answered = true;
+  const btns = optionsDiv.querySelectorAll('.option-btn');
+  btns.forEach(b => b.disabled = true);
+  
+  if(selected === correct) {
+    btn.classList.add('correct');
+    feedback.className = 'feedback correct';
+    feedback.textContent = '✅ Sahi jawab! Bahut badhiya!';
+    score++;
+  } else {
+    btn.classList.add('wrong');
+    btns[correct].classList.add('correct');
+    feedback.className = 'feedback wrong';
+    feedback.textContent = '❌ Galat! Sahi jawab: ' + questions[current].options[correct];
+  }
+  
+  feedback.style.display = 'block';
+  nextBtn.textContent = current < totalQ - 1 ? 'Agla Sawaal →' : 'Result Dekho 🎉';
+  nextBtn.style.display = 'block';
+}
+
+nextBtn.onclick = () => {
+  current++;
+  if(current < totalQ) {
+    showQuestion();
+  } else {
+    showResults();
+  }
+};
+
+async function showResults() {
+  document.getElementById('quizArea').style.display = 'none';
+  qFill.style.width = '100%';
+  
+  const pct = Math.round(score/totalQ*100);
+  const resultsDiv = document.getElementById('results');
+  resultsDiv.style.display = 'block';
+  
+  const emoji = pct === 100 ? '🏆' : pct >= 75 ? '🎉' : pct >= 50 ? '😊' : '💪';
+  const title = pct === 100 ? 'Perfect Score!' : pct >= 75 ? 'Bahut Badiya!' : pct >= 50 ? 'Achha Kiya!' : 'Koi na, phir try karo!';
+  const msg = pct === 100 ? 'Sab kuch sahi — tu master ban gaya!' : pct >= 75 ? 'Almost perfect — thoda aur practice karo!' : pct >= 50 ? 'Theek hai lekin aur practice karo!' : 'Lesson dobara padho aur quiz phir do!';
+  
+  document.getElementById('resultsEmoji').textContent = emoji;
+  document.getElementById('resultsTitle').textContent = title;
+  document.getElementById('scoreText').textContent = score + '/' + totalQ + ' (' + pct + '%)';
+  document.getElementById('resultsMsg').textContent = msg;
+
+  try {
+    const res = await fetch('/api/complete_lesson', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({lang:'{{ lang }}', lesson_id:'{{ lesson.id }}', score:score, total:totalQ})
+    });
+    const data = await res.json();
+    if(data.ok) {
+      document.getElementById('xpText').textContent = '+' + data.xp + ' XP earned! 🔥 Streak: ' + data.streak + ' days';
+    }
+  } catch(e) {
+    document.getElementById('xpText').textContent = '+XP earned!';
+  }
+}
+
+showQuestion();
+</script>
+</body>
+</html>

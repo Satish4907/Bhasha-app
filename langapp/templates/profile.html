@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profile — भाषा</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Inter',sans-serif;background:#F5F0E8;color:#1A1A2E}
+  nav{display:flex;justify-content:space-between;align-items:center;padding:1rem 5%;background:white;border-bottom:1px solid #EEE;position:sticky;top:0;z-index:100}
+  .logo{font-family:'Noto Sans Devanagari',sans-serif;font-size:1.4rem;font-weight:700;color:#FF6B00;text-decoration:none}
+  .logo span{color:#3D3B8E}
+  .nav-right{display:flex;gap:1rem}
+  .nav-right a{color:#6B7280;text-decoration:none;font-size:0.9rem;font-weight:500}
+  .nav-right a:hover{color:#1A1A2E}
+  
+  .main{max-width:900px;margin:0 auto;padding:2rem 5%}
+  
+  .profile-card{background:linear-gradient(135deg,#3D3B8E,#5B59C4);color:white;border-radius:20px;padding:2.5rem;margin-bottom:2rem;display:flex;align-items:center;gap:2rem;flex-wrap:wrap}
+  .avatar{width:80px;height:80px;background:rgba(255,255,255,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2.5rem;flex-shrink:0}
+  .profile-info h1{font-size:1.6rem;font-weight:700;margin-bottom:0.2rem}
+  .profile-info p{opacity:0.75;font-size:0.9rem}
+  .profile-info .joined{font-size:0.8rem;opacity:0.6;margin-top:0.3rem}
+  
+  .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem;margin-bottom:2rem}
+  .stat-box{background:white;border-radius:14px;padding:1.3rem;text-align:center;border:1.5px solid #EEE}
+  .stat-val{font-size:2rem;font-weight:700;color:#FF6B00;margin-bottom:0.2rem}
+  .stat-label{font-size:0.78rem;color:#6B7280}
+  
+  .section-title{font-size:1.1rem;font-weight:700;margin-bottom:1rem}
+  .lang-stats{display:grid;gap:1rem;margin-bottom:2rem}
+  .lang-row{background:white;border-radius:14px;padding:1.2rem 1.5rem;border:1.5px solid #EEE;display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap}
+  .lang-row .icon{font-size:1.5rem;flex-shrink:0}
+  .lang-row .info{flex:1;min-width:120px}
+  .lang-row .info h3{font-size:0.95rem;font-weight:700}
+  .lang-row .info p{font-size:0.8rem;color:#6B7280;margin-top:0.15rem}
+  .mini-bar{background:#F0EDE8;border-radius:6px;height:6px;margin-top:0.5rem;overflow:hidden}
+  .mini-fill{height:100%;border-radius:6px}
+  .lang-nums{display:flex;gap:1rem;flex-shrink:0}
+  .lang-num{text-align:center}
+  .lang-num .val{font-size:1.2rem;font-weight:700}
+  .lang-num .lbl{font-size:0.7rem;color:#9CA3AF}
+</style>
+</head>
+<body>
+<nav>
+  <a href="/" class="logo">भाषा <span>Bhasha</span></a>
+  <div class="nav-right">
+    <a href="/dashboard">Dashboard</a>
+    <a href="/logout" style="color:#EF4444">Logout</a>
+  </div>
+</nav>
+
+<div class="main">
+  <div class="profile-card">
+    <div class="avatar">🧑</div>
+    <div class="profile-info">
+      <h1>{{ current_user.username }}</h1>
+      <p>{{ current_user.email }}</p>
+      <p class="joined">Member since {{ current_user.created_at.strftime('%B %Y') }}</p>
+    </div>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat-box">
+      <div class="stat-val">🔥{{ streak.current_streak if streak else 0 }}</div>
+      <div class="stat-label">Current Streak</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-val">🏆{{ streak.longest_streak if streak else 0 }}</div>
+      <div class="stat-label">Best Streak</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-val">⭐{{ streak.total_xp if streak else 0 }}</div>
+      <div class="stat-label">Total XP</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-val">📝{{ total_quizzes }}</div>
+      <div class="stat-label">Quizzes Done</div>
+    </div>
+  </div>
+
+  <div class="section-title">📊 Bhasha Breakdown</div>
+  <div class="lang-stats">
+    {% set colors = {'marathi':'#FF6B35','english':'#4A90D9','marwadi':'#F5A623','sanskrit':'#7B68EE'} %}
+    {% for lang_key, stats in lang_breakdown.items() %}
+    {% set c = colors[lang_key] %}
+    <div class="lang-row">
+      <div class="icon">{{ stats.flag }}</div>
+      <div class="info">
+        <h3>{{ stats.name }}</h3>
+        <p>{{ stats.lessons_done }}/{{ stats.total }} lessons complete</p>
+        <div class="mini-bar">
+          <div class="mini-fill" style="background:{{ c }};width:{{ ((stats.lessons_done/stats.total*100)|int) if stats.total else 0 }}%"></div>
+        </div>
+      </div>
+      <div class="lang-nums">
+        <div class="lang-num">
+          <div class="val" style="color:{{ c }}">{{ stats.xp }}</div>
+          <div class="lbl">XP</div>
+        </div>
+        <div class="lang-num">
+          <div class="val" style="color:{{ c }}">{{ stats.avg_score }}%</div>
+          <div class="lbl">Avg Score</div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+</body>
+</html>
